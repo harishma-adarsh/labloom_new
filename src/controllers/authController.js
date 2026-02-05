@@ -201,6 +201,15 @@ const updateProfile = async (req, res) => {
             };
         }
 
+        if (req.body.insurance) {
+            user.insurance = {
+                provider: req.body.insurance.provider || user.insurance?.provider,
+                policyNumber: req.body.insurance.policyNumber || user.insurance?.policyNumber,
+                policyExpiryDate: req.body.insurance.policyExpiryDate || user.insurance?.policyExpiryDate,
+                providerContact: req.body.insurance.providerContact || user.insurance?.providerContact
+            };
+        }
+
         if (req.body.password) {
             const salt = await bcrypt.genSalt(10);
             user.password = await bcrypt.hash(req.body.password, salt);
@@ -221,6 +230,7 @@ const updateProfile = async (req, res) => {
             emergencyContact: updatedUser.emergencyContact,
             healthProfile: updatedUser.healthProfile,
             lifestyle: updatedUser.lifestyle,
+            insurance: updatedUser.insurance,
             role: updatedUser.role,
             token: generateToken(updatedUser.id),
         });

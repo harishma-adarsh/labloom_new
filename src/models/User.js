@@ -73,7 +73,8 @@ const userSchema = mongoose.Schema({
     insurance: {
         provider: { type: String },
         policyNumber: { type: String },
-        groupNumber: { type: String }
+        policyExpiryDate: { type: Date }, // New from design
+        providerContact: { type: String } // New from design
     },
     notificationSettings: {
         email: { type: Boolean, default: true },
