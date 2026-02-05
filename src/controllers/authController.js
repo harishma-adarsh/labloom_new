@@ -229,11 +229,16 @@ const updateProfile = async (req, res) => {
     }
 };
 
+const verifyOtp = loginWithOtp;
+const getProfile = getMe;
+
 module.exports = {
     registerUser,
     loginUser,
     getMe,
     sendOtp,
     loginWithOtp,
+    verifyOtp,
+    getProfile,
     updateProfile,
 };

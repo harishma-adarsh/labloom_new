@@ -52,7 +52,7 @@ router.post('/send-otp', sendOtp);
  *       200:
  *         description: OTP sent successfully
  */
-router.post('/login-otp', loginWithOtp);
+router.post('/login-otp', sendOtp);
 
 /**
  * @swagger
