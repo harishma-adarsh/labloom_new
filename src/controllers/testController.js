@@ -57,9 +57,47 @@ const deleteTest = async (req, res) => {
     }
 };
 
+// @desc    Get test by ID
+// @route   GET /api/tests/:id
+// @access  Public
+const getTestById = async (req, res) => {
+    try {
+        const test = await Test.findById(req.params.id);
+        if (!test) {
+            return res.status(404).json({ message: 'Test not found' });
+        }
+        res.status(200).json(test);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Seed sample tests
+// @route   POST /api/tests/seed
+// @access  Public
+const seedTests = async (req, res) => {
+    try {
+        const sampleTests = [
+            { name: "Blood Glucose", price: 25.00, duration: "1 day", category: "diabetes", description: "Standard blood sugar measurement." },
+            { name: "Full Blood Count", price: 45.00, duration: "2 days", category: "general", description: "Analysis of red and white blood cells." },
+            { name: "Hormonal Panel", price: 120.00, duration: "3 days", category: "hormonal", description: "Check balance of various hormones." },
+            { name: "Lipid Profile", price: 60.00, duration: "1 day", category: "cardiac", description: "Cholesterol and triglyceride levels." }
+        ];
+
+        await Test.deleteMany();
+        const createdTests = await Test.insertMany(sampleTests);
+        res.status(200).json({ message: 'Tests seeded successfully', count: createdTests.length });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     getTests,
     createTest,
     updateTest,
     deleteTest,
+    getTestById,
+    seedTests
 };
+
