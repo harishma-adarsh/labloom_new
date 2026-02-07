@@ -96,8 +96,49 @@ const userSchema = mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['user', 'admin'],
-        default: 'user'
+        enum: ['patient', 'doctor', 'lab', 'hospital', 'admin'],
+        default: 'patient'
+    },
+    // Doctor-specific fields (only populated if role === 'doctor')
+    doctorProfile: {
+        specialization: { type: String },
+        qualifications: [{ type: String }],
+        experience: { type: Number }, // years
+        consultationFee: { type: Number },
+        licenseNumber: { type: String },
+        hospitalAffiliations: [{
+            hospitalId: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Hospital'
+            },
+            department: { type: String }
+        }],
+        availability: [{
+            day: {
+                type: String,
+                enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+            },
+            slots: [{
+                startTime: { type: String },
+                endTime: { type: String }
+            }]
+        }],
+        rating: { type: Number, default: 0 },
+        reviewsCount: { type: Number, default: 0 },
+        verificationStatus: {
+            type: String,
+            enum: ['pending', 'approved', 'rejected'],
+            default: 'pending'
+        }
+    },
+    // Lab/Hospital reference (if role === 'lab' or 'hospital')
+    entityReference: {
+        type: mongoose.Schema.Types.ObjectId,
+        refPath: 'entityModel'
+    },
+    entityModel: {
+        type: String,
+        enum: ['Lab', 'Hospital']
     },
     createdAt: {
         type: Date,

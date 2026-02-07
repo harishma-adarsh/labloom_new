@@ -34,9 +34,50 @@ const admin = (req, res, next) => {
     if (req.user && req.user.role === 'admin') {
         next();
     } else {
-        res.status(401).json({ message: 'Not authorized as an admin' });
+        res.status(403).json({ message: 'Access denied. Admin only.' });
     }
 };
 
-module.exports = { protect, admin };
+// Generic role authorization middleware
+const authorizeRoles = (...roles) => {
+    return (req, res, next) => {
+        if (!req.user) {
+            return res.status(401).json({ message: 'Not authenticated' });
+        }
 
+        if (!roles.includes(req.user.role)) {
+            return res.status(403).json({
+                message: `Access denied. Required roles: ${roles.join(', ')}`
+            });
+        }
+
+        next();
+    };
+};
+
+// Specific role middleware
+const verifyDoctor = (req, res, next) => {
+    if (req.user && req.user.role === 'doctor') {
+        next();
+    } else {
+        res.status(403).json({ message: 'Access denied. Doctor only.' });
+    }
+};
+
+const verifyLab = (req, res, next) => {
+    if (req.user && req.user.role === 'lab') {
+        next();
+    } else {
+        res.status(403).json({ message: 'Access denied. Lab only.' });
+    }
+};
+
+const verifyHospital = (req, res, next) => {
+    if (req.user && req.user.role === 'hospital') {
+        next();
+    } else {
+        res.status(403).json({ message: 'Access denied. Hospital only.' });
+    }
+};
+
+module.exports = { protect, admin, authorizeRoles, verifyDoctor, verifyLab, verifyHospital };
