@@ -1,0 +1,1592 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Labloom API",
+    "version": "1.0.0",
+    "description": "API documentation for Labloom Healthcare Application"
+  },
+  "servers": [
+    {
+      "url": "https://labloom-malabar.vercel.app",
+      "description": "Production server"
+    },
+    {
+      "url": "http://localhost:5000",
+      "description": "Local server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/api/admin/pending-hospitals": {
+      "get": {
+        "summary": "List hospitals awaiting verification",
+        "tags": [
+          "Admin Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of hospitals"
+          }
+        }
+      }
+    },
+    "/api/admin/approve-hospital/{id}": {
+      "post": {
+        "summary": "Approve/Enable a hospital entity",
+        "tags": [
+          "Admin Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Hospital approved"
+          }
+        }
+      }
+    },
+    "/api/admin/pending-labs": {
+      "get": {
+        "summary": "List diagnostic centers awaiting verification",
+        "tags": [
+          "Admin Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of labs"
+          }
+        }
+      }
+    },
+    "/api/admin/approve-lab/{id}": {
+      "post": {
+        "summary": "Approve/Enable a lab entity",
+        "tags": [
+          "Admin Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lab approved"
+          }
+        }
+      }
+    },
+    "/api/admin/users": {
+      "get": {
+        "summary": "Search and manage all platform users",
+        "tags": [
+          "Admin Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of users"
+          }
+        }
+      }
+    },
+    "/api/admin/users/{id}/status": {
+      "patch": {
+        "summary": "Suspend or deactivate accounts",
+        "tags": [
+          "Admin Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "isActive": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Status updated"
+          }
+        }
+      }
+    },
+    "/api/admin/reports/system": {
+      "get": {
+        "summary": "Platform-wide usage and growth analytics",
+        "tags": [
+          "Admin Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Analytics data"
+          }
+        }
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "summary": "Register a new user",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "phone"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User registered successfully"
+          }
+        }
+      }
+    },
+    "/api/auth/login-otp": {
+      "post": {
+        "summary": "Request OTP for login",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "phone"
+                ],
+                "properties": {
+                  "phone": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OTP sent successfully"
+          }
+        }
+      }
+    },
+    "/api/auth/verify-otp": {
+      "post": {
+        "summary": "Verify OTP and login",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "phone",
+                  "otp"
+                ],
+                "properties": {
+                  "phone": {
+                    "type": "string"
+                  },
+                  "otp": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful"
+          }
+        }
+      }
+    },
+    "/api/auth/profile": {
+      "get": {
+        "summary": "Get user profile",
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User profile data"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update user profile",
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Profile updated"
+          }
+        }
+      }
+    },
+    "/api/auth/v2/signup": {
+      "post": {
+        "summary": "Register a new user with a specific role",
+        "tags": [
+          "Auth V2"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "phone",
+                  "role"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "patient",
+                      "doctor",
+                      "lab",
+                      "hospital"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User registered"
+          }
+        }
+      }
+    },
+    "/api/auth/v2/request-otp": {
+      "post": {
+        "summary": "Request OTP for mobile login",
+        "tags": [
+          "Auth V2"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "phone"
+                ],
+                "properties": {
+                  "phone": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OTP sent"
+          }
+        }
+      }
+    },
+    "/api/auth/v2/verify-otp": {
+      "post": {
+        "summary": "Verify OTP and login",
+        "tags": [
+          "Auth V2"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "phone",
+                  "otp"
+                ],
+                "properties": {
+                  "phone": {
+                    "type": "string"
+                  },
+                  "otp": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful"
+          }
+        }
+      }
+    },
+    "/api/auth/v2/refresh-token": {
+      "post": {
+        "summary": "Refresh access token",
+        "tags": [
+          "Auth V2"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "refreshToken"
+                ],
+                "properties": {
+                  "refreshToken": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Token refreshed"
+          }
+        }
+      }
+    },
+    "/api/auth/v2/logout": {
+      "post": {
+        "summary": "Logout user",
+        "tags": [
+          "Auth V2"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "refreshToken": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Logged out"
+          }
+        }
+      }
+    },
+    "/api/bookings": {
+      "post": {
+        "summary": "Create a new booking",
+        "tags": [
+          "Bookings"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Booking created"
+          }
+        }
+      }
+    },
+    "/api/bookings/my": {
+      "get": {
+        "summary": "Get my bookings",
+        "tags": [
+          "Bookings"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of bookings"
+          }
+        }
+      }
+    },
+    "/api/bookings/summaries": {
+      "get": {
+        "summary": "Get visit summaries",
+        "tags": [
+          "Bookings"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of visit summaries"
+          }
+        }
+      }
+    },
+    "/api/bookings/{id}/summary": {
+      "put": {
+        "summary": "Update visit summary",
+        "tags": [
+          "Bookings"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Summary updated"
+          }
+        }
+      }
+    },
+    "/api/doctor/appointments": {
+      "get": {
+        "summary": "Get doctor's daily schedule",
+        "tags": [
+          "Doctor Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "date",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of appointments"
+          }
+        }
+      }
+    },
+    "/api/doctor/patients": {
+      "get": {
+        "summary": "Get doctor's patient list",
+        "tags": [
+          "Doctor Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of patients"
+          }
+        }
+      }
+    },
+    "/api/doctor/appointments/{id}/status": {
+      "patch": {
+        "summary": "Update appointment status (Accept/Complete/Cancel)",
+        "tags": [
+          "Doctor Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  },
+                  "reason": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Status updated"
+          }
+        }
+      }
+    },
+    "/api/doctor/appointments/{id}": {
+      "get": {
+        "summary": "Get detailed appointment view",
+        "tags": [
+          "Doctor Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Appointment details"
+          }
+        }
+      }
+    },
+    "/api/doctor/patients/{id}/history": {
+      "get": {
+        "summary": "Get authorized patient medical history",
+        "tags": [
+          "Doctor Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Patient history"
+          }
+        }
+      }
+    },
+    "/api/doctor/consultations/{appointmentId}/records": {
+      "post": {
+        "summary": "Save diagnosis and clinical notes",
+        "tags": [
+          "Doctor Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "appointmentId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Records saved"
+          }
+        }
+      }
+    },
+    "/api/doctor/consultations/{appointmentId}/prescribe": {
+      "post": {
+        "summary": "Issue digital prescription",
+        "tags": [
+          "Doctor Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "appointmentId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "prescriptions": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Prescription issued"
+          }
+        }
+      }
+    },
+    "/api/hospital/add-doctor": {
+      "post": {
+        "summary": "Associate a doctor with the hospital",
+        "tags": [
+          "Hospital Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "doctorId",
+                  "department"
+                ],
+                "properties": {
+                  "doctorId": {
+                    "type": "string"
+                  },
+                  "department": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Doctor added"
+          }
+        }
+      }
+    },
+    "/api/hospital/doctors": {
+      "get": {
+        "summary": "List all doctors in hospital staff",
+        "tags": [
+          "Hospital Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of doctors"
+          }
+        }
+      }
+    },
+    "/api/hospital/doctors/{id}": {
+      "delete": {
+        "summary": "Remove doctor from hospital staff",
+        "tags": [
+          "Hospital Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Doctor removed"
+          }
+        }
+      }
+    },
+    "/api/hospital/dashboard": {
+      "get": {
+        "summary": "Overall stats for visits and revenue",
+        "tags": [
+          "Hospital Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dashboard stats"
+          }
+        }
+      }
+    },
+    "/api/hospital/appointments": {
+      "get": {
+        "summary": "Integrated view of all appointments in the facility",
+        "tags": [
+          "Hospital Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of appointments"
+          }
+        }
+      }
+    },
+    "/api/lab/bookings": {
+      "get": {
+        "summary": "List test bookings by status or date",
+        "tags": [
+          "Lab Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of bookings"
+          }
+        }
+      },
+      "post": {
+        "summary": "Add offline/manual booking for walk-in patient",
+        "tags": [
+          "Lab Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Booking created"
+          }
+        }
+      }
+    },
+    "/api/lab/bookings/{id}/status": {
+      "patch": {
+        "summary": "Update sample status (Collected/In-Lab/etc.)",
+        "tags": [
+          "Lab Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Status updated"
+          }
+        }
+      }
+    },
+    "/api/lab/reports/upload": {
+      "post": {
+        "summary": "Upload digitized report file",
+        "tags": [
+          "Lab Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Report uploaded"
+          }
+        }
+      }
+    },
+    "/api/lab/reports/{id}/validate": {
+      "post": {
+        "summary": "Final pathologist approval",
+        "tags": [
+          "Lab Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Report validated"
+          }
+        }
+      }
+    },
+    "/api/lab/staff": {
+      "get": {
+        "summary": "List lab technicians and pathologists",
+        "tags": [
+          "Lab Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Staff list"
+          }
+        }
+      },
+      "post": {
+        "summary": "Register new staff member",
+        "tags": [
+          "Lab Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Staff registered"
+          }
+        }
+      }
+    },
+    "/api/lab/settings": {
+      "patch": {
+        "summary": "Update lab configuration",
+        "tags": [
+          "Lab Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Settings updated"
+          }
+        }
+      }
+    },
+    "/api/patients/dashboard": {
+      "get": {
+        "summary": "Get patient dashboard summary",
+        "tags": [
+          "Patient Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dashboard data"
+          }
+        }
+      }
+    },
+    "/api/patients/me": {
+      "get": {
+        "summary": "Fetch patient profile and preferences",
+        "tags": [
+          "Patient Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Patient profile"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update personal information",
+        "tags": [
+          "Patient Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Profile updated"
+          }
+        }
+      }
+    },
+    "/api/patients/health-metrics": {
+      "get": {
+        "summary": "Fetch historical health data",
+        "tags": [
+          "Patient Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "type",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Health metrics"
+          }
+        }
+      },
+      "post": {
+        "summary": "Log new health readings manually",
+        "tags": [
+          "Patient Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Metric logged"
+          }
+        }
+      }
+    },
+    "/api/patients/appointments/me": {
+      "get": {
+        "summary": "List patient's consultation history and upcoming visits",
+        "tags": [
+          "Patient Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of appointments"
+          }
+        }
+      }
+    },
+    "/api/patients/appointments": {
+      "post": {
+        "summary": "Book a new consultation with a doctor",
+        "tags": [
+          "Patient Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Appointment booked"
+          }
+        }
+      }
+    },
+    "/api/patients/bookings/me": {
+      "get": {
+        "summary": "History of lab tests and current statuses",
+        "tags": [
+          "Patient Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of bookings"
+          }
+        }
+      }
+    },
+    "/api/patients/bookings": {
+      "post": {
+        "summary": "Book a specific diagnostic test",
+        "tags": [
+          "Patient Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Test booked"
+          }
+        }
+      }
+    },
+    "/api/patients/doctors": {
+      "get": {
+        "summary": "Search/filter available doctors",
+        "tags": [
+          "Patient Portal"
+        ],
+        "responses": {
+          "200": {
+            "description": "List of doctors"
+          }
+        }
+      }
+    },
+    "/api/patients/labs": {
+      "get": {
+        "summary": "Find available labs",
+        "tags": [
+          "Patient Portal"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "city",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of labs"
+          }
+        }
+      }
+    },
+    "/api/patients/reports": {
+      "get": {
+        "summary": "Access and download finalized lab reports",
+        "tags": [
+          "Patient Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lab reports"
+          }
+        }
+      }
+    },
+    "/api/patients/prescriptions": {
+      "get": {
+        "summary": "View digital prescriptions",
+        "tags": [
+          "Patient Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Prescriptions"
+          }
+        }
+      }
+    },
+    "/api/tests": {
+      "get": {
+        "summary": "Get all tests",
+        "tags": [
+          "Tests"
+        ],
+        "responses": {
+          "200": {
+            "description": "List of tests"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a test (Admin only)",
+        "tags": [
+          "Tests"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Test created"
+          }
+        }
+      }
+    },
+    "/api/tests/{id}": {
+      "get": {
+        "summary": "Get test by ID",
+        "tags": [
+          "Tests"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Test data"
+          }
+        }
+      }
+    },
+    "/api/tests/seed": {
+      "post": {
+        "summary": "Seed sample tests",
+        "tags": [
+          "Tests"
+        ],
+        "responses": {
+          "200": {
+            "description": "Tests seeded"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Admin Portal",
+      "description": "Super admin governance and platform-wide management"
+    },
+    {
+      "name": "Auth V2",
+      "description": "Enhanced multi-role authentication system"
+    },
+    {
+      "name": "Doctor Portal",
+      "description": "Endpoints for doctor schedule and patient management"
+    },
+    {
+      "name": "Hospital Portal",
+      "description": "Endpoints for healthcare facility management"
+    },
+    {
+      "name": "Lab Portal",
+      "description": "Endpoints for lab diagnostic centers and test management"
+    },
+    {
+      "name": "Patient Portal",
+      "description": "Endpoints for patients to manage health, appointments, and records"
+    }
+  ]
+}
