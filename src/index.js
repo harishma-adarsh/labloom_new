@@ -16,7 +16,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // Swagger Documentation
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+const CSS_URL = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui.min.css";
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
+    customCssUrl: CSS_URL
+}));
 
 app.use('/api/auth/v2', require('./routes/authV2Routes'));
 app.use('/api/patients', require('./routes/patientPortalRoutes'));

@@ -1,4 +1,5 @@
 const swaggerJsdoc = require('swagger-jsdoc');
+const path = require('path');
 
 const options = {
     definition: {
@@ -10,12 +11,12 @@ const options = {
         },
         servers: [
             {
-                url: 'http://localhost:5000',
-                description: 'Local server',
+                url: 'https://labloom-malabar.vercel.app',
+                description: 'Production server',
             },
             {
-                url: 'https://labloom.vercel.app',
-                description: 'Production server',
+                url: 'http://localhost:5000',
+                description: 'Local server',
             },
         ],
         components: {
@@ -33,7 +34,8 @@ const options = {
             },
         ],
     },
-    apis: ['./src/routes/*.js'], // Path to the API docs
+    // Use absolute path for Vercel/Serverless compatibility
+    apis: [path.join(__dirname, '../routes/*.js')],
 };
 
 const specs = swaggerJsdoc(options);
