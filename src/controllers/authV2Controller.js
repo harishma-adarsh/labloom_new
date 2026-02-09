@@ -201,10 +201,71 @@ const logout = async (req, res) => {
     res.json({ message: 'Logged out successfully' });
 };
 
+// @desc    Get current user profile
+// @route   GET /api/patients/me (and other portals)
+// @access  Private
+const getMe = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).select('-password -otp -otpExpires');
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json(user);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+// @desc    Update user profile
+// @route   PATCH /api/patients/me (and other portals)
+// @access  Private
+const updateProfile = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Update allowed fields
+        const allowedUpdates = ['name', 'email', 'phone', 'address', 'dateOfBirth', 'gender'];
+        allowedUpdates.forEach(field => {
+            if (req.body[field] !== undefined) {
+                user[field] = req.body[field];
+            }
+        });
+
+        // If password is being updated
+        if (req.body.password) {
+            const salt = await bcrypt.genSalt(10);
+            user.password = await bcrypt.hash(req.body.password, salt);
+        }
+
+        const updatedUser = await user.save();
+
+        res.json({
+            _id: updatedUser.id,
+            name: updatedUser.name,
+            email: updatedUser.email,
+            phone: updatedUser.phone,
+            role: updatedUser.role,
+            address: updatedUser.address,
+            dateOfBirth: updatedUser.dateOfBirth,
+            gender: updatedUser.gender
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
 module.exports = {
     signup,
     requestOtp,
     verifyOtp,
     refreshAccessToken,
-    logout
+    logout,
+    getMe,
+    updateProfile
 };
