@@ -110,7 +110,8 @@ const requestOtp = async (req, res) => {
     // In production, send SMS here
     console.log(`### OTP for ${phone}: ${otp} ###`);
 
-    res.status(200).json({ message: 'OTP sent successfully' });
+    // FOR TESTING ONLY: Returning OTP in response since SMS is not configured
+    res.status(200).json({ message: 'OTP sent successfully', otp });
 };
 
 // @desc    Verify OTP and login
