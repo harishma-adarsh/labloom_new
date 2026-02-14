@@ -20,6 +20,9 @@ const generateRefreshToken = () => {
 // @route   POST /api/auth/signup
 // @access  Public
 const signup = async (req, res) => {
+    if (!req.body) {
+        return res.status(400).json({ message: 'Request body is missing' });
+    }
     const { name, email, password, phone, role, privacyPolicyAccepted } = req.body;
 
     if (!name || !phone) {

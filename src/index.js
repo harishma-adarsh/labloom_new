@@ -23,13 +23,13 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
 }));
 
 app.use('/api/auth/v2', require('./routes/authV2Routes'));
+app.use('/api/auth', require('./routes/authRoutes'));
+
 app.use('/api/patients', require('./routes/patientPortalRoutes'));
 app.use('/api/doctor', require('./routes/doctorPortalRoutes'));
 app.use('/api/lab', require('./routes/labPortalRoutes'));
 app.use('/api/hospital', require('./routes/hospitalPortalRoutes'));
 app.use('/api/admin', require('./routes/adminPortalRoutes'));
-
-app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/tests', require('./routes/testRoutes'));
 app.use('/api/bookings', require('./routes/bookingRoutes'));

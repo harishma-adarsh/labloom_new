@@ -13,6 +13,9 @@ const generateToken = (id) => {
 // @route   POST /api/auth/register
 // @access  Public
 const registerUser = async (req, res) => {
+    if (!req.body) {
+        return res.status(400).json({ message: 'Request body is missing' });
+    }
     const { name, email, password, phone, privacyPolicyAccepted } = req.body;
 
     if (!name || !phone) {
@@ -66,6 +69,9 @@ const registerUser = async (req, res) => {
 // @route   POST /api/auth/login
 // @access  Public
 const loginUser = async (req, res) => {
+    if (!req.body) {
+        return res.status(400).json({ message: 'Request body is missing' });
+    }
     const { email, password } = req.body;
 
     // Check for user email
