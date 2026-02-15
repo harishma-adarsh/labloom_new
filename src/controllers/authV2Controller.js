@@ -95,14 +95,19 @@ const signup = async (req, res) => {
 const requestOtp = async (req, res) => {
     const { phone } = req.body;
 
-    const user = await User.findOne({ phone });
+    let user = await User.findOne({ phone });
 
+    // If user doesn't exist, create a guest user (Auto-registration)
     if (!user) {
-        return res.status(404).json({ message: 'User not found with this mobile number' });
+        user = await User.create({
+            name: 'Guest User',
+            phone: phone,
+            role: 'patient'
+        });
     }
 
-    // Generate 4-digit OTP
-    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    // Use fixed 4-digit OTP for testing
+    const otp = '1234';
 
     // Set OTP and expiration (10 minutes)
     user.otp = otp;
