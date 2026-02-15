@@ -11,7 +11,7 @@ const options = {
         },
         servers: [
             {
-                url: 'https://labloom-malabar.vercel.app',
+                url: process.env.SWAGGER_SERVER_URL || 'https://labloom-malabar.vercel.app',
                 description: 'Production server',
             },
             {

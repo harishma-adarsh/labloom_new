@@ -1,6 +1,6 @@
 # Labloom Healthcare API Documentation
 **Version:** 1.0.0  
-**Base URL:** `https://labloom-malabar.vercel.app`  
+**Base URL:** `https://your-app-name.onrender.com` (or `https://labloom-malabar.vercel.app`)  
 **Description:** This document provides a complete technical reference for the Labloom Backend.
 
 ---
