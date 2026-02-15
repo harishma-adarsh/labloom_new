@@ -164,7 +164,7 @@ router.get('/me', protect, getMe);
 router.get('/signup', (req, res) => {
     res.status(200).json({
         message: 'Signup endpoint is active. Please use POST request to register.',
-        documentation: '/api-docs',
+        documentation: '/docs/swagger',
         requiredFields: ['name', 'phone', 'role']
     });
 });

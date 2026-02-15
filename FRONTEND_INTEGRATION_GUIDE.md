@@ -1,7 +1,7 @@
 # Labloom Frontend Integration Guide
 
 **Version:** 1.0.0  
-**Base URL:** `https://labloom-malabar.vercel.app`  
+**Base URL:** `https://labloom-new.onrender.com`  
 **Last Updated:** February 9, 2026
 
 ---
@@ -26,7 +26,7 @@
 ### Base Configuration
 
 ```javascript
-const API_BASE_URL = 'https://labloom-malabar.vercel.app';
+const API_BASE_URL = 'https://labloom-new.onrender.com';
 
 // Axios configuration example
 import axios from 'axios';

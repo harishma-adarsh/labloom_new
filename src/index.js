@@ -18,7 +18,7 @@ app.use(express.urlencoded({ extended: false }));
 
 // Swagger Documentation
 const CSS_URL = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui.min.css";
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
+app.use('/docs/swagger', swaggerUi.serve, swaggerUi.setup(specs, {
     customCssUrl: CSS_URL
 }));
 
