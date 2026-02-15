@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "https://labloom-malabar.vercel.app",
+      "url": "https://labloom-new.onrender.com",
       "description": "Production server"
     },
     {
