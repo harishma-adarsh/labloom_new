@@ -22,8 +22,30 @@ const generateToken = (id, role) => {
 // @desc    Seed admin user (auto-creates if not exists)
 const seedAdmin = async () => {
     try {
-        const existingAdmin = await User.findOne({ phone: ADMIN_PHONE, role: 'admin' });
-        if (!existingAdmin) {
+        // 1. Remove ANY OTHER users that might have the admin phone or email
+        // and are NOT already the admin with the correct phone/email
+        await User.deleteMany({
+            $or: [{ phone: ADMIN_PHONE }, { email: ADMIN_EMAIL }],
+            role: { $ne: 'admin' }
+        });
+
+        // 2. Now try to find the admin
+        let admin = await User.findOne({
+            $or: [{ phone: ADMIN_PHONE }, { email: ADMIN_EMAIL }]
+        });
+
+        if (admin) {
+            // Update existing admin
+            admin.role = 'admin';
+            admin.name = ADMIN_NAME;
+            admin.phone = ADMIN_PHONE;
+            admin.email = ADMIN_EMAIL;
+            admin.isActive = true;
+            admin.password = undefined; // Enforce OTP login
+            await admin.save();
+            console.log('✅ Admin credentials synced: ' + ADMIN_PHONE);
+        } else {
+            // Create new admin
             await User.create({
                 name: ADMIN_NAME,
                 email: ADMIN_EMAIL,
@@ -31,10 +53,20 @@ const seedAdmin = async () => {
                 role: 'admin',
                 isActive: true
             });
-            console.log('✅ Admin user seeded: ' + ADMIN_PHONE);
+            console.log('✅ Admin user created: ' + ADMIN_PHONE);
         }
     } catch (error) {
-        console.error('Admin seed error:', error.message);
+        console.error('Final Admin seed error:', error.message);
+        // Fallback: One last attempt with findOneAndUpdate if save failed
+        try {
+            await User.findOneAndUpdate(
+                { email: ADMIN_EMAIL },
+                { phone: ADMIN_PHONE, role: 'admin', name: ADMIN_NAME, isActive: true },
+                { upsert: true }
+            );
+        } catch (innerError) {
+            console.error('Forceful admin update failed:', innerError.message);
+        }
     }
 };
 
