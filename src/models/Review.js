@@ -8,8 +8,15 @@ const reviewSchema = mongoose.Schema({
     },
     doctor: {
         type: mongoose.Schema.Types.ObjectId,
-        required: true,
         ref: 'Doctor'
+    },
+    lab: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Lab'
+    },
+    hospital: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Hospital'
     },
     rating: {
         type: Number,

@@ -1,10 +1,12 @@
 const Booking = require('../models/Booking');
 
+const PLATFORM_FEE = 50; // ₹50 platform fee
+
 // @desc    Create new booking
 // @route   POST /api/bookings
 // @access  Private
 const createBooking = async (req, res) => {
-    const { testId, doctorId, bookingType, date, time, appointmentMode, notes } = req.body;
+    const { testId, labId, doctorId, bookingType, date, time, appointmentMode, notes, amount } = req.body;
 
     // Validation
     if (!date) {
@@ -23,15 +25,39 @@ const createBooking = async (req, res) => {
     }
 
     try {
+        // Revenue splitting
+        let revenue = {};
+        let totalAmount = amount || 0;
+        let platformFee = 0;
+
+        if (bookingType === 'test' || !bookingType) {
+            // Lab booking: Base price → Lab, ₹50 → Admin
+            platformFee = PLATFORM_FEE;
+            const labAmount = totalAmount - platformFee;
+            revenue = {
+                labAmount: labAmount > 0 ? labAmount : 0,
+                adminAmount: platformFee
+            };
+        } else if (bookingType === 'doctor') {
+            // Doctor booking: Consultation fee → Hospital revenue
+            revenue = {
+                hospitalAmount: totalAmount
+            };
+        }
+
         const booking = await Booking.create({
             user: req.user.id,
             test: testId || undefined,
+            lab: labId || undefined,
             doctor: doctorId || undefined,
             bookingType: bookingType || 'test',
             date,
             time,
             appointmentMode,
-            notes
+            notes,
+            amount: totalAmount,
+            platformFee,
+            revenue
         });
 
         res.status(201).json(booking);

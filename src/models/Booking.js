@@ -10,9 +10,25 @@ const bookingSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Test'
     },
+    lab: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Lab'
+    },
     doctor: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Doctor'
+    },
+    amount: {
+        type: Number // Total amount paid by patient
+    },
+    platformFee: {
+        type: Number, // ₹50 platform fee for lab bookings
+        default: 0
+    },
+    revenue: {
+        labAmount: { type: Number }, // Base price going to Lab
+        hospitalAmount: { type: Number }, // Consultation fee going to Hospital
+        adminAmount: { type: Number } // Platform fee going to Admin
     },
     bookingType: {
         type: String,
@@ -33,7 +49,7 @@ const bookingSchema = mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['pending', 'confirmed', 'completed', 'cancelled'],
+        enum: ['pending', 'confirmed', 'completed', 'cancelled', 'test_not_done'],
         default: 'pending'
     },
     visitSummary: {

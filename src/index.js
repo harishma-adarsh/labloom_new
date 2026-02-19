@@ -15,6 +15,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use('/uploads', express.static('uploads'));
 
 // Swagger Documentation
 const CSS_URL = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui.min.css";
@@ -40,6 +41,9 @@ app.use('/api/metrics', require('./routes/metricRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
 app.use('/api/payments', require('./routes/paymentRoutes'));
 app.use('/api/utils', require('./routes/utilRoutes'));
+app.use('/api/chat', require('./routes/chatRoutes'));
+app.use('/api/feedback', require('./routes/feedbackRoutes'));
+app.use('/api/hospitals', require('./routes/hospitalPortalRoutes'));
 
 app.get('/', (req, res) => {
     res.send('API is running...');
