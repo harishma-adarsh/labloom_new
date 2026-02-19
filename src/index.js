@@ -8,7 +8,11 @@ const connectDB = require('./config/db');
 
 dotenv.config();
 
-connectDB();
+connectDB().then(() => {
+    // Auto-seed admin user on startup
+    const { seedAdmin } = require('./controllers/adminPortalController');
+    seedAdmin();
+});
 
 const app = express();
 

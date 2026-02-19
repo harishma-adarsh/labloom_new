@@ -58,7 +58,11 @@ const authorizeRoles = (...roles) => {
 // Specific role middleware
 const verifyDoctor = (req, res, next) => {
     if (req.user && req.user.role === 'doctor') {
-        next();
+        if (req.user.doctorProfile && req.user.doctorProfile.verificationStatus === 'approved') {
+            next();
+        } else {
+            res.status(403).json({ message: 'Access denied. Doctor account pending approval.' });
+        }
     } else {
         res.status(403).json({ message: 'Access denied. Doctor only.' });
     }

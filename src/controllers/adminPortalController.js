@@ -2,6 +2,123 @@ const User = require('../models/User');
 const Hospital = require('../models/Hospital');
 const Lab = require('../models/Lab');
 const Booking = require('../models/Booking');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+
+// ===== PREDEFINED ADMIN CREDENTIALS =====
+const ADMIN_PHONE = '1234567890';
+const ADMIN_NAME = 'Super Admin';
+const ADMIN_EMAIL = 'admin@labloom.com';
+const FIXED_OTP = '1234';
+// =========================================
+
+// Generate JWT token
+const generateToken = (id, role) => {
+    return jwt.sign({ id, role }, process.env.JWT_SECRET, {
+        expiresIn: '7d',
+    });
+};
+
+// @desc    Seed admin user (auto-creates if not exists)
+const seedAdmin = async () => {
+    try {
+        const existingAdmin = await User.findOne({ phone: ADMIN_PHONE, role: 'admin' });
+        if (!existingAdmin) {
+            await User.create({
+                name: ADMIN_NAME,
+                email: ADMIN_EMAIL,
+                phone: ADMIN_PHONE,
+                role: 'admin',
+                isActive: true
+            });
+            console.log('✅ Admin user seeded: ' + ADMIN_PHONE);
+        }
+    } catch (error) {
+        console.error('Admin seed error:', error.message);
+    }
+};
+
+// @desc    Admin request OTP
+// @route   POST /api/admin/request-otp
+// @access  Public
+const adminRequestOtp = async (req, res) => {
+    try {
+        const { phone } = req.body;
+
+        if (!phone) {
+            return res.status(400).json({ message: 'Phone number is required' });
+        }
+
+        // Only allow predefined admin phone
+        if (phone !== ADMIN_PHONE) {
+            return res.status(401).json({ message: 'Not authorized as admin' });
+        }
+
+        // Find or create admin
+        let admin = await User.findOne({ phone: ADMIN_PHONE, role: 'admin' });
+        if (!admin) {
+            await seedAdmin();
+            admin = await User.findOne({ phone: ADMIN_PHONE, role: 'admin' });
+        }
+
+        // Set fixed OTP
+        admin.otp = FIXED_OTP;
+        admin.otpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+        await admin.save();
+
+        console.log(`### Admin OTP for ${phone}: ${FIXED_OTP} ###`);
+
+        res.json({ message: 'Admin OTP sent successfully', otp: FIXED_OTP });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Admin verify OTP and login
+// @route   POST /api/admin/verify-otp
+// @access  Public
+const adminVerifyOtp = async (req, res) => {
+    try {
+        const { phone, otp } = req.body;
+
+        if (!phone || !otp) {
+            return res.status(400).json({ message: 'Phone and OTP are required' });
+        }
+
+        if (phone !== ADMIN_PHONE) {
+            return res.status(401).json({ message: 'Not authorized as admin' });
+        }
+
+        const admin = await User.findOne({ phone: ADMIN_PHONE, role: 'admin' });
+
+        if (!admin) {
+            return res.status(404).json({ message: 'Admin account not found' });
+        }
+
+        if (admin.otp !== otp || admin.otpExpires < Date.now()) {
+            return res.status(400).json({ message: 'Invalid or expired OTP' });
+        }
+
+        // Clear OTP
+        admin.otp = undefined;
+        admin.otpExpires = undefined;
+        await admin.save();
+
+        const token = generateToken(admin._id, admin.role);
+
+        res.json({
+            message: 'Admin login successful',
+            _id: admin._id,
+            name: admin.name,
+            email: admin.email,
+            phone: admin.phone,
+            role: admin.role,
+            accessToken: token
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
 
 // @desc    Get pending hospitals
 // @route   GET /api/admin/pending-hospitals
@@ -60,6 +177,40 @@ const approveLab = async (req, res) => {
         await lab.save();
 
         res.json({ message: 'Lab approved successfully', lab });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Get pending doctors
+// @route   GET /api/admin/pending-doctors
+// @access  Private (Admin)
+const getPendingDoctors = async (req, res) => {
+    try {
+        const doctors = await User.find({
+            role: 'doctor',
+            'doctorProfile.verificationStatus': 'pending'
+        });
+        res.json(doctors);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Approve doctor
+// @route   POST /api/admin/approve-doctor/:id
+// @access  Private (Admin)
+const approveDoctor = async (req, res) => {
+    try {
+        const doctor = await User.findById(req.params.id);
+        if (!doctor || doctor.role !== 'doctor') {
+            return res.status(404).json({ message: 'Doctor not found' });
+        }
+
+        doctor.doctorProfile.verificationStatus = 'approved';
+        await doctor.save();
+
+        res.json({ message: 'Doctor approved successfully', doctor });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -153,10 +304,15 @@ const getSystemAnalytics = async (req, res) => {
 };
 
 module.exports = {
+    adminRequestOtp,
+    adminVerifyOtp,
+    seedAdmin,
     getPendingHospitals,
     approveHospital,
     getPendingLabs,
     approveLab,
+    getPendingDoctors,
+    approveDoctor,
     getAllUsers,
     updateUserStatus,
     getSystemAnalytics

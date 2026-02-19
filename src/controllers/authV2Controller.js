@@ -64,6 +64,18 @@ const signup = async (req, res) => {
     });
 
     if (user) {
+        // If doctor, don't return tokens immediately, require approval
+        if (user.role === 'doctor') {
+            return res.status(201).json({
+                _id: user.id,
+                name: user.name,
+                email: user.email,
+                phone: user.phone,
+                role: user.role,
+                message: 'Registration successful. Your account is pending admin approval.'
+            });
+        }
+
         // Generate tokens
         const accessToken = generateAccessToken(user.id, user.role);
         const refreshToken = generateRefreshToken();
@@ -131,6 +143,11 @@ const verifyOtp = async (req, res) => {
     const user = await User.findOne({ phone });
 
     if (user && user.otp === otp && user.otpExpires > Date.now()) {
+        // Check if doctor is approved
+        if (user.role === 'doctor' && user.doctorProfile && user.doctorProfile.verificationStatus !== 'approved') {
+            return res.status(403).json({ message: 'Your account is pending approval. Please contact administrator.' });
+        }
+
         // Clear OTP after successful login
         user.otp = undefined;
         user.otpExpires = undefined;
