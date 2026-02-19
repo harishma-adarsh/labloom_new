@@ -1,5 +1,7 @@
 const User = require('../models/User');
 const RefreshToken = require('../models/RefreshToken');
+const Hospital = require('../models/Hospital');
+const Lab = require('../models/Lab');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
@@ -53,17 +55,43 @@ const signup = async (req, res) => {
     }
 
     // Create user
+    // For doctor, lab, hospital: privacyPolicyAccepted defaults to false and is set to true ONLY by admin approval
+    const isPublicUser = ['patient'].includes(userRole);
+
     const user = await User.create({
         name,
         email,
         password: hashedPassword,
         phone,
         role: userRole,
-        privacyPolicyAccepted: Boolean(privacyPolicyAccepted),
-        privacyPolicyAcceptedAt: privacyPolicyAccepted ? Date.now() : undefined
+        privacyPolicyAccepted: isPublicUser ? Boolean(privacyPolicyAccepted) : false,
+        privacyPolicyAcceptedAt: (isPublicUser && privacyPolicyAccepted) ? Date.now() : undefined
     });
 
     if (user) {
+        if (user.role === 'hospital') {
+            const hospital = await Hospital.create({
+                name: user.name,
+                registrationNumber: `REG_PENDING_${user.phone}`,
+                email: user.email || `hospital_${user.id}@labloom.com`,
+                phone: user.phone,
+                verificationStatus: 'pending'
+            });
+            user.entityReference = hospital._id;
+            user.entityModel = 'Hospital';
+            await user.save();
+        } else if (user.role === 'lab') {
+            const lab = await Lab.create({
+                name: user.name,
+                registrationNumber: `REG_PENDING_${user.phone}`,
+                email: user.email || `lab_${user.id}@labloom.com`,
+                phone: user.phone,
+                verificationStatus: 'pending'
+            });
+            user.entityReference = lab._id;
+            user.entityModel = 'Lab';
+            await user.save();
+        }
         // If doctor, don't return tokens immediately, require approval
         if (user.role === 'doctor') {
             return res.status(201).json({
@@ -101,20 +129,27 @@ const signup = async (req, res) => {
     }
 };
 
-// @desc    Request OTP for mobile login
-// @route   POST /api/auth/request-otp
-// @access  Public
 const requestOtp = async (req, res) => {
     const { phone } = req.body;
 
     let user = await User.findOne({ phone });
 
-    // If user doesn't exist, create a guest user (Auto-registration)
+    // If user doesn't exist, create a guest user (Auto-registration as patient)
     if (!user) {
         user = await User.create({
             name: 'Guest User',
             phone: phone,
-            role: 'patient'
+            role: 'patient',
+            privacyPolicyAccepted: true, // Auto-admitted as guest patient
+            privacyPolicyAcceptedAt: Date.now()
+        });
+    }
+
+    // BLOCK DOCTORS, LABS, HOSPITALS WHO ARE NOT APPROVED
+    const restrictedRoles = ['doctor', 'lab', 'hospital'];
+    if (restrictedRoles.includes(user.role) && !user.privacyPolicyAccepted) {
+        return res.status(403).json({
+            message: 'Your account is pending admin approval. You cannot log in yet.'
         });
     }
 
@@ -143,8 +178,9 @@ const verifyOtp = async (req, res) => {
     const user = await User.findOne({ phone });
 
     if (user && user.otp === otp && user.otpExpires > Date.now()) {
-        // Check if doctor is approved
-        if (user.role === 'doctor' && user.doctorProfile && user.doctorProfile.verificationStatus !== 'approved') {
+        // Final safety check: Check if approved
+        const restrictedRoles = ['doctor', 'lab', 'hospital'];
+        if (restrictedRoles.includes(user.role) && !user.privacyPolicyAccepted) {
             return res.status(403).json({ message: 'Your account is pending approval. Please contact administrator.' });
         }
 

@@ -99,12 +99,16 @@ const signup = async (userData) => {
       phone: userData.phone,
       password: userData.password,
       role: userData.role, // 'patient', 'doctor', 'lab', 'hospital'
-      privacyPolicyAccepted: true,
+      privacyPolicyAccepted: true, // Required for patients. For others, this is forced to false until admin approval.
     });
     
-    // Store tokens
-    localStorage.setItem('accessToken', response.data.accessToken);
-    localStorage.setItem('refreshToken', response.data.refreshToken);
+    // NOTE: For 'doctor', 'lab', and 'hospital', this will return a 201 status 
+    // but without tokens, as they require Admin Approval first.
+    
+    if (response.data.accessToken) {
+        localStorage.setItem('accessToken', response.data.accessToken);
+        localStorage.setItem('refreshToken', response.data.refreshToken);
+    }
     localStorage.setItem('user', JSON.stringify(response.data));
     
     return response.data;
@@ -114,6 +118,10 @@ const signup = async (userData) => {
   }
 };
 ```
+
+> **⚠️ Important Notice on Registration:**
+> - **Patients:** Can log in immediately after signup.
+> - **Doctors, Labs, Hospitals:** Registration creates a "Pending Approval" account. These users **cannot** request OTPs or Log In until an Administrator approves their account in the Admin Portal. Attempting to log in early will result in a `403 Forbidden` error.
 
 **Response:**
 ```json
@@ -140,6 +148,10 @@ const requestOTP = async (phone) => {
     const response = await api.post('/api/auth/request-otp', { phone });
     return response.data;
   } catch (error) {
+    // 403 error means account is pending admin approval
+    if (error.response?.status === 403) {
+      alert("Your account is pending admin approval.");
+    }
     console.error('OTP request error:', error.response?.data);
     throw error;
   }

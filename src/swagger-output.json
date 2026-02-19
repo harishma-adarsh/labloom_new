@@ -30,6 +30,72 @@
     }
   ],
   "paths": {
+    "/api/admin/request-otp": {
+      "post": {
+        "summary": "Request OTP for admin login",
+        "tags": [
+          "Admin Portal"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "phone"
+                ],
+                "properties": {
+                  "phone": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OTP sent"
+          }
+        }
+      }
+    },
+    "/api/admin/verify-otp": {
+      "post": {
+        "summary": "Verify OTP and login as admin",
+        "tags": [
+          "Admin Portal"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "phone",
+                  "otp"
+                ],
+                "properties": {
+                  "phone": {
+                    "type": "string"
+                  },
+                  "otp": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful"
+          }
+        }
+      }
+    },
     "/api/admin/pending-hospitals": {
       "get": {
         "summary": "List hospitals awaiting verification",
@@ -43,14 +109,14 @@
         ],
         "responses": {
           "200": {
-            "description": "List of hospitals"
+            "description": "List of pending hospitals"
           }
         }
       }
     },
     "/api/admin/approve-hospital/{id}": {
       "post": {
-        "summary": "Approve/Enable a hospital entity",
+        "summary": "Approve hospital registration",
         "tags": [
           "Admin Portal"
         ],
@@ -78,7 +144,7 @@
     },
     "/api/admin/pending-labs": {
       "get": {
-        "summary": "List diagnostic centers awaiting verification",
+        "summary": "List labs awaiting verification",
         "tags": [
           "Admin Portal"
         ],
@@ -89,14 +155,14 @@
         ],
         "responses": {
           "200": {
-            "description": "List of labs"
+            "description": "List of pending labs"
           }
         }
       }
     },
     "/api/admin/approve-lab/{id}": {
       "post": {
-        "summary": "Approve/Enable a lab entity",
+        "summary": "Approve lab registration",
         "tags": [
           "Admin Portal"
         ],
@@ -122,9 +188,27 @@
         }
       }
     },
-    "/api/admin/users": {
+    "/api/admin/pending-doctors": {
       "get": {
-        "summary": "Search and manage all platform users",
+        "summary": "List doctors awaiting verification",
+        "tags": [
+          "Admin Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of pending doctors"
+          }
+        }
+      }
+    },
+    "/api/admin/approve-doctor/{id}": {
+      "post": {
+        "summary": "Approve doctor registration",
         "tags": [
           "Admin Portal"
         ],
@@ -134,6 +218,41 @@
           }
         ],
         "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Doctor approved"
+          }
+        }
+      }
+    },
+    "/api/admin/users": {
+      "get": {
+        "summary": "Get all system users (excludes admins)",
+        "tags": [
+          "Admin Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "role",
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "in": "query",
             "name": "search",
@@ -151,7 +270,7 @@
     },
     "/api/admin/users/{id}/status": {
       "patch": {
-        "summary": "Suspend or deactivate accounts",
+        "summary": "Update user account status (Active/Suspended)",
         "tags": [
           "Admin Portal"
         ],
@@ -171,7 +290,6 @@
           }
         ],
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
@@ -194,7 +312,7 @@
     },
     "/api/admin/reports/system": {
       "get": {
-        "summary": "Platform-wide usage and growth analytics",
+        "summary": "Get system-wide platform analytics",
         "tags": [
           "Admin Portal"
         ],
@@ -697,6 +815,78 @@
         }
       }
     },
+    "/api/chat/send": {
+      "post": {
+        "summary": "Send a message",
+        "tags": [
+          "Chat"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "bookingId": {
+                    "type": "string"
+                  },
+                  "content": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "text",
+                      "image",
+                      "file"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Message sent"
+          }
+        }
+      }
+    },
+    "/api/chat/{bookingId}": {
+      "get": {
+        "summary": "Get chat history",
+        "tags": [
+          "Chat"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "bookingId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of messages"
+          }
+        }
+      }
+    },
     "/api/doctor/appointments": {
       "get": {
         "summary": "Get doctor's daily schedule",
@@ -945,9 +1135,316 @@
         }
       }
     },
+    "/api/doctors": {
+      "get": {
+        "summary": "Get all doctors",
+        "tags": [
+          "Doctors"
+        ],
+        "responses": {
+          "200": {
+            "description": "List of doctors"
+          }
+        }
+      }
+    },
+    "/api/doctors/search": {
+      "get": {
+        "summary": "Search doctors by name, specialty, or hospital",
+        "tags": [
+          "Doctors"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "specialty",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "hospital",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Search results"
+          }
+        }
+      }
+    },
+    "/api/doctors/seed": {
+      "post": {
+        "summary": "Seed sample doctors (Dev only)",
+        "tags": [
+          "Doctors"
+        ],
+        "responses": {
+          "200": {
+            "description": "Seeded doctors"
+          }
+        }
+      }
+    },
+    "/api/doctors/{id}/details": {
+      "get": {
+        "summary": "Get doctor bio, experience, consultation fee, and patient reviews",
+        "tags": [
+          "Doctors"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Doctor details with reviews"
+          }
+        }
+      }
+    },
+    "/api/doctors/{id}/slots": {
+      "get": {
+        "summary": "Get available time slots for a doctor",
+        "tags": [
+          "Doctors"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "date",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Available slots"
+          }
+        }
+      }
+    },
+    "/api/doctors/{id}": {
+      "get": {
+        "summary": "Get doctor by ID",
+        "tags": [
+          "Doctors"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Doctor details"
+          }
+        }
+      }
+    },
+    "/api/feedback/submit": {
+      "post": {
+        "summary": "Submit ratings and comments",
+        "tags": [
+          "Feedback"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "targetId",
+                  "targetType",
+                  "rating",
+                  "comment"
+                ],
+                "properties": {
+                  "targetId": {
+                    "type": "string"
+                  },
+                  "targetType": {
+                    "type": "string",
+                    "enum": [
+                      "lab",
+                      "doctor",
+                      "hospital"
+                    ]
+                  },
+                  "rating": {
+                    "type": "number",
+                    "minimum": 1,
+                    "maximum": 5
+                  },
+                  "comment": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Feedback submitted"
+          }
+        }
+      }
+    },
+    "/api/feedback/{targetId}": {
+      "get": {
+        "summary": "Retrieve reviews for a specific entity",
+        "tags": [
+          "Feedback"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "targetId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "targetType",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lab",
+                "doctor",
+                "hospital"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of reviews"
+          }
+        }
+      }
+    },
+    "/api/hospital/popular": {
+      "get": {
+        "summary": "List top-rated hospitals for the dashboard",
+        "tags": [
+          "Hospital Portal"
+        ],
+        "responses": {
+          "200": {
+            "description": "List of popular hospitals"
+          }
+        }
+      }
+    },
+    "/api/hospital/{id}/doctors": {
+      "get": {
+        "summary": "View doctors working at a specific hospital",
+        "tags": [
+          "Hospital Portal"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of doctors"
+          }
+        }
+      }
+    },
+    "/api/hospital/doctors/assign": {
+      "post": {
+        "summary": "Assign a doctor to the hospital staff",
+        "tags": [
+          "Hospital Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "doctorId",
+                  "department"
+                ],
+                "properties": {
+                  "doctorId": {
+                    "type": "string"
+                  },
+                  "department": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Doctor assigned"
+          }
+        }
+      }
+    },
     "/api/hospital/add-doctor": {
       "post": {
-        "summary": "Associate a doctor with the hospital",
+        "summary": "Associate a doctor with the hospital (legacy)",
         "tags": [
           "Hospital Portal"
         ],
@@ -981,6 +1478,134 @@
         "responses": {
           "201": {
             "description": "Doctor added"
+          }
+        }
+      }
+    },
+    "/api/hospital/slots/manage": {
+      "post": {
+        "summary": "Define and assign time slots to specific doctors",
+        "tags": [
+          "Hospital Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "doctorId",
+                  "day",
+                  "slots"
+                ],
+                "properties": {
+                  "doctorId": {
+                    "type": "string"
+                  },
+                  "day": {
+                    "type": "string",
+                    "enum": [
+                      "Monday",
+                      "Tuesday",
+                      "Wednesday",
+                      "Thursday",
+                      "Friday",
+                      "Saturday",
+                      "Sunday"
+                    ]
+                  },
+                  "slots": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "startTime": {
+                          "type": "string"
+                        },
+                        "endTime": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Slots updated"
+          }
+        }
+      }
+    },
+    "/api/hospital/appointments/{id}/complete": {
+      "patch": {
+        "summary": "Mark appointment as completed after the visit",
+        "tags": [
+          "Hospital Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Appointment completed"
+          }
+        }
+      }
+    },
+    "/api/hospital/finance": {
+      "get": {
+        "summary": "View revenue reports (consultation fees collected for doctors)",
+        "tags": [
+          "Hospital Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "startDate",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "in": "query",
+            "name": "endDate",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Revenue report"
           }
         }
       }
@@ -1120,9 +1745,27 @@
         }
       }
     },
+    "/api/lab/bookings/pending": {
+      "get": {
+        "summary": "List upcoming/pending test bookings",
+        "tags": [
+          "Lab Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pending bookings"
+          }
+        }
+      }
+    },
     "/api/lab/bookings/{id}/status": {
       "patch": {
-        "summary": "Update sample status (Collected/In-Lab/etc.)",
+        "summary": "Update booking status (Completed / Test Not Done)",
         "tags": [
           "Lab Portal"
         ],
@@ -1149,7 +1792,14 @@
                 "type": "object",
                 "properties": {
                   "status": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                      "pending",
+                      "confirmed",
+                      "completed",
+                      "cancelled",
+                      "test_not_done"
+                    ]
                   }
                 }
               }
@@ -1163,9 +1813,52 @@
         }
       }
     },
+    "/api/lab/bookings/{id}/upload-report": {
+      "post": {
+        "summary": "Upload digital report for a specific booking (after completion)",
+        "tags": [
+          "Lab Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "report": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Report uploaded"
+          }
+        }
+      }
+    },
     "/api/lab/reports/upload": {
       "post": {
-        "summary": "Upload digitized report file",
+        "summary": "Upload digitized report file (legacy)",
         "tags": [
           "Lab Portal"
         ],
@@ -1187,6 +1880,34 @@
         "responses": {
           "200": {
             "description": "Report uploaded"
+          }
+        }
+      }
+    },
+    "/api/lab/reports/{bookingId}/download": {
+      "get": {
+        "summary": "Download finalized PDF report",
+        "tags": [
+          "Lab Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "bookingId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Report URL"
           }
         }
       }
@@ -1215,6 +1936,132 @@
         "responses": {
           "200": {
             "description": "Report validated"
+          }
+        }
+      }
+    },
+    "/api/lab/catalog": {
+      "get": {
+        "summary": "Get lab test catalog",
+        "tags": [
+          "Lab Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lab catalog"
+          }
+        }
+      },
+      "post": {
+        "summary": "Add test to lab catalog",
+        "tags": [
+          "Lab Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "testId": {
+                    "type": "string"
+                  },
+                  "price": {
+                    "type": "number"
+                  },
+                  "turnaroundTime": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Test added"
+          }
+        }
+      }
+    },
+    "/api/lab/catalog/{testEntryId}": {
+      "patch": {
+        "summary": "Update price/turnaround for a test in catalog",
+        "tags": [
+          "Lab Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "testEntryId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "price": {
+                    "type": "number"
+                  },
+                  "turnaroundTime": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Entry updated"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove test from lab catalog",
+        "tags": [
+          "Lab Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "testEntryId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Test removed"
           }
         }
       }
@@ -1567,6 +2414,190 @@
         }
       }
     },
+    "/api/patients/labs/{id}/tests": {
+      "get": {
+        "summary": "View tests provided by a specific lab",
+        "tags": [
+          "Patient Portal"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of tests"
+          }
+        }
+      }
+    },
+    "/api/patients/hospitals/popular": {
+      "get": {
+        "summary": "List popular hospitals",
+        "tags": [
+          "Patient Portal"
+        ],
+        "responses": {
+          "200": {
+            "description": "List of popular hospitals"
+          }
+        }
+      }
+    },
+    "/api/patients/doctors/{id}/slots": {
+      "get": {
+        "summary": "View specific slots assigned by the hospital for a doctor",
+        "tags": [
+          "Patient Portal"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "date",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of slots"
+          }
+        }
+      }
+    },
+    "/api/patients/feedback": {
+      "post": {
+        "summary": "Submit feedback/review for labs, doctors, or hospitals",
+        "tags": [
+          "Patient Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "targetId": {
+                    "type": "string"
+                  },
+                  "targetType": {
+                    "type": "string",
+                    "enum": [
+                      "doctor",
+                      "lab",
+                      "hospital"
+                    ]
+                  },
+                  "rating": {
+                    "type": "number"
+                  },
+                  "comment": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Feedback submitted"
+          }
+        }
+      }
+    },
+    "/api/patients/reviews": {
+      "get": {
+        "summary": "Get reviews for a specific entity",
+        "tags": [
+          "Patient Portal"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "targetId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "targetType",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "doctor",
+                "lab",
+                "hospital"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of reviews"
+          }
+        }
+      }
+    },
+    "/api/patients/upload-profile-image": {
+      "post": {
+        "summary": "Upload profile image",
+        "tags": [
+          "Patient Portal"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "image": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Image uploaded"
+          }
+        }
+      }
+    },
     "/api/tests": {
       "get": {
         "summary": "Get all tests",
@@ -1636,7 +2667,7 @@
   "tags": [
     {
       "name": "Admin Portal",
-      "description": "Super admin governance and platform-wide management"
+      "description": "Super admin governance and oversight endpoints"
     },
     {
       "name": "Auth",
@@ -1647,8 +2678,20 @@
       "description": "Enhanced multi-role authentication system"
     },
     {
+      "name": "Chat",
+      "description": "Messaging between patients and doctors"
+    },
+    {
       "name": "Doctor Portal",
       "description": "Endpoints for doctor schedule and patient management"
+    },
+    {
+      "name": "Doctors",
+      "description": "Public doctor search and discovery"
+    },
+    {
+      "name": "Feedback",
+      "description": "Universal feedback/review system for labs, doctors, and hospitals"
     },
     {
       "name": "Hospital Portal",

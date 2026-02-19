@@ -7,8 +7,8 @@ const hospitalSchema = mongoose.Schema({
     },
     registrationNumber: {
         type: String,
-        required: true,
-        unique: true
+        unique: true,
+        sparse: true // Allow multiple nulls/empty during onboarding
     },
     email: {
         type: String,

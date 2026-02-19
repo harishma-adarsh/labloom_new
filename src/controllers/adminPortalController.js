@@ -177,6 +177,12 @@ const approveHospital = async (req, res) => {
         hospital.verifiedAt = Date.now();
         await hospital.save();
 
+        // Sync with User table: set privacyPolicyAccepted to true (Approval flag)
+        await User.findOneAndUpdate(
+            { entityReference: hospital._id, role: 'hospital' },
+            { privacyPolicyAccepted: true }
+        );
+
         res.json({ message: 'Hospital approved successfully', hospital });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -207,6 +213,12 @@ const approveLab = async (req, res) => {
         lab.verifiedBy = req.user.id;
         lab.verifiedAt = Date.now();
         await lab.save();
+
+        // Sync with User table: set privacyPolicyAccepted to true (Approval flag)
+        await User.findOneAndUpdate(
+            { entityReference: lab._id, role: 'lab' },
+            { privacyPolicyAccepted: true }
+        );
 
         res.json({ message: 'Lab approved successfully', lab });
     } catch (error) {
@@ -240,6 +252,7 @@ const approveDoctor = async (req, res) => {
         }
 
         doctor.doctorProfile.verificationStatus = 'approved';
+        doctor.privacyPolicyAccepted = true; // Approval flag
         await doctor.save();
 
         res.json({ message: 'Doctor approved successfully', doctor });
@@ -254,9 +267,16 @@ const approveDoctor = async (req, res) => {
 const getAllUsers = async (req, res) => {
     try {
         const { role, search, page = 1, limit = 20 } = req.query;
-        let filter = {};
 
-        if (role) filter.role = role;
+        // Exclude admins from the general user list
+        let filter = { role: { $ne: 'admin' } };
+
+        if (role && role !== 'admin') {
+            filter.role = role;
+        } else if (role === 'admin') {
+            // Prevent fetching admins even if explicitly requested via query
+            filter.role = 'none';
+        }
         if (search) {
             filter.$or = [
                 { name: { $regex: search, $options: 'i' } },

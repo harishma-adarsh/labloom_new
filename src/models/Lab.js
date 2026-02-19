@@ -7,8 +7,8 @@ const labSchema = mongoose.Schema({
     },
     registrationNumber: {
         type: String,
-        required: true,
-        unique: true
+        unique: true,
+        sparse: true
     },
     email: {
         type: String,
